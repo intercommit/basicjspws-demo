@@ -1,0 +1,76 @@
+<!-- logback configuration file for logging,
+see http://logback.qos.ch/manual/configuration.html
+for more options and information.
+The general minimum log-level is specified at the end
+of this file in the "root level".
+-->
+
+<!-- If this file changes, logging is re-configured within 5 seconds and/or after 16 log-statements. -->
+<configuration scan="true" scanPeriod="5 seconds">
+		
+	<property name="app.name" value="basicjspdemo" />
+	<property name="log.home" value="${catalina.base}/logs" />
+	<property name="log.name" value="${log.home}/${app.name}" />
+	
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.name}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover with gz compression for old log-files -->
+			<fileNamePattern>${log.name}.%d.log.gz</fileNamePattern>
+			<!-- keep 7 days' worth of history -->
+			<maxHistory>7</maxHistory>
+			<cleanHistoryOnStart>true</cleanHistoryOnStart>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{dd HH:mm:ss:SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="ERRORFILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.name}-error.log</file>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.name}-error.%d.log.gz</fileNamePattern>
+			<maxHistory>7</maxHistory>
+			<cleanHistoryOnStart>true</cleanHistoryOnStart>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d [%thread] %-5level %logger - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- In memory cyclic buffer, used to show last log-events. -->
+	<appender name="CYCLIC"
+		class="ch.qos.logback.core.read.CyclicBufferAppender"> 
+		<MaxSize>512</MaxSize>
+	</appender>
+
+	<appender name="CYCLICERROR"
+		class="ch.qos.logback.core.read.CyclicBufferAppender"> 
+		<MaxSize>512</MaxSize>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+	</appender>
+	
+	<logger name="nl.intercommit.basicjspws" level="DEBUG" />
+	<logger name="nl" level="INFO" />
+	<logger name="com" level="INFO" />
+	<logger name="org" level="INFO" />
+	<logger name="net" level="INFO" />
+
+	<!-- root must always be last in configuration file,
+	the appender-refs tell the logger what log-files are active. 
+	-->
+	<root level="DEBUG"> 
+		<appender-ref ref="FILE" />
+		<appender-ref ref="ERRORFILE" />
+		<appender-ref ref="CYCLIC" />
+		<appender-ref ref="CYCLICERROR" />
+	</root>
+
+</configuration>

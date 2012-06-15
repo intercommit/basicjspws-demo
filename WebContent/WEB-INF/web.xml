@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+
+	<display-name>Basic JSP WS Demo</display-name>
+	
+	<welcome-file-list>
+		<welcome-file>pages/index.jsp</welcome-file>
+	 </welcome-file-list>
+
+	<listener>
+		<listener-class>nl.intercommit.basicjspws.demo.InitDemo</listener-class>
+	</listener>
+	
+	<filter>
+		<filter-name>MainFilter</filter-name>
+		<filter-class>nl.intercommit.basicjspws.AppFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>MainFilter</filter-name>
+		<url-pattern>/pages/*</url-pattern>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>MainServlet</servlet-name>
+		<servlet-class>nl.intercommit.basicjspws.AppServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MainServlet</servlet-name>
+		<url-pattern>/pages/*</url-pattern>
+	</servlet-mapping>
+
+</web-app>

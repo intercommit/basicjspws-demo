@@ -1,0 +1,188 @@
+<html>
+<head>
+<style type="text/css">
+pre {font-size: 1.1em}
+code {font-size: 1.1em}
+</style>
+</head>
+<body>
+
+<h2>Basic JSP WS</h2>
+
+<div style="font-size:0.8em; float:right">14/6/2012</div>
+
+The goal of this Basic JSP project is to provide a minimal learning setup 
+to get started on building a web-service that performs a small set of business logic
+(e.g. in goes some values, out goes some XML formatted answer).
+<br>It is a long way from using Eclipse, Maven and Tomcat to building a war-file
+that you can deploy in Tomcat. The demo-project can be used as a template
+to get Eclipse, Maven and Tomcat working together so that you can focus
+on developing code that performs a simple task.
+<p>
+The Basic JSP project does not show how to implement a fully functional web-request handler 
+(see also the "Usefulness" chapter at the bottom of this manual).
+That depends on the kind of requests you get and the responses that need to be given.
+The Basic JSP project does provide functions (e.g. in <code>ControllerUtil</code>) 
+that properly handle common cases for basic http-communication. 
+</p>
+
+<h3>The setup</h3>
+
+The demo project was build and tested using Java 6, Eclipse Indigo, Tomcat 6 and Maven 2.
+If this is not your setup, chances are things will not work together.
+<p>
+To get started on learning the basics of JSP (and web services) using the Basic JSP WS project,
+import the <code>basicjspws</code> and <code>basicjspws-demo</code> projects in Eclipse 
+(read the included <code>readme-dev.txt</code> files on how to do this).
+Next, get the demo running in Tomcat so that the index-page shows 
+(see the included <code>readme-dev.txt</code> file in the demo-project) and click around.
+If you use the Tomcat runtime server in Eclipse, do not forget to set the 
+<code>logback.configurationFile</code> and <code>basicjspws-demo.home</code> parameters
+(see the <code>readme-dev.txt</code> file in the demo-project).
+</p>
+
+<h3>The route to serving an index-page</h3>
+
+Stuff starts at <code>/WebContent/WEB-INF/web.xml</code> in the demo-project.
+In here there is a <code>listener-class</code> set that Tomcat will run (set to <code>InitDemo</code>).
+In the demo-project <code>InitDemo</code> extends <code>AppInit</code>.
+Via <code>InitDemo</code> Tomcat will call <code>AppInit.contextInitialized</code>.
+This is where the demo app is setup. Among other things (details later), <code>AppInit</code> will
+register a <code>UrlController</code> that links requests from <code>/basicjspws-demo/pages/index</code>
+to the <code>IndexController</code> class.
+In other words, if Tomcat receives a http-request to <code>/basicjspws-demo/pages/index</code>
+the <code>IndexController</code> is called to handle that request.
+The <code>IndexController</code> simply returns the jsp-page that needs to be shown (<code>/WEB-INF/pages/index.jsp</code>).
+<p>
+Between Tomcat receiving a http-request to <code>/basicjspws-demo/pages/index</code>
+and calling the <code>IndexController</code> class, two other classes are involved: <code>AppFilter</code> and <code>AppServlet</code>.
+Both are registered in <code>/WebContent/WEB-INF/web.xml</code> also (which is why Tomcat involves these classes).
+<code>AppFilter</code> does a little pre-processing of the http-request 
+so that the requested URL is set to <code>/basicjspws-demo/pages/index</code>.
+AppServlet looks up the controller that should handle the requested URL.
+It then executes this controller by calling <code>Controller.handleRequest</code>.
+If this method returns null, <code>AppServlet</code> does nothing. If this method
+returns a String, <code>AppServlet</code> assumes this is the jsp-page to display.
+In the latter case <code>AppServlet</code> calls a Tomcat function to handle the actual
+displaying of the jsp-page (via <code>RequestDispatcher</code>). 
+</p>
+
+<h3>Serve my jsp-page</h3>
+
+Open <code>InitDemo</code>, override the method <code>setUrlControllers</code> from <code>AppInit</code>.
+In the new method, call <code>super.setUrlControllers</code> and add the following line:
+<br><code>urlControllers.add(new UrlController("myPageUrl", baseUrl + "pages/mine", null, "/WEB-INF/pages/mypage.jsp"));</code>
+<br>In <code>/WebContent/WEB-INF/pages</code> copy <code>index.jsp</code> to <code>mypage.jsp</code>.
+<br>Create a class <code>MyPageController</code>, copy the contents from <code>IndexController</code>
+but modify the return-statement to <code>getAppPage("myPageUrl")</code>.
+<br>Create a class <code>DemoServlet</code> which extends <code>AppServlet</code>.
+<br>Override the method <code>init</code>. In the new method call <code>super.init</code> and add the following lines:
+<pre>
+	UrlControllers ucs = AppInit.appInstance.urlControllers;
+   	MyPageController mp = new MyPageController();
+	ucs.get("myPageUrl").controller = mp;
+</pre>
+The reason for registering the controller in <code>AppServlet</code> and not in <code>AppInit</code> is that
+<code>AppServlet</code> is only initialized when <code>AppInit</code> is done (i.e. your application has started OK).
+If your controller needs data from the application startup, it is guaranteed to be available
+when <code>AppServlet</code> is initialized.
+<br>Register the new <code>DemoServlet</code> in <code>/WebContent/WEB-INF/web.xml</code>
+(replace <code>nl.intercommit.basicjspws.AppServlet</code>).
+If you have Tomcat running in Eclipse, changes should be applied immediatly.
+Navigate to
+<br><code>http://localhost:8080/basicjspws-demo/pages/mine</code>
+<br>to see your new page.
+Alternatively, build the war (<code>mvn package</code>), rename <code>target\basicjspws-demo-1.0.0.war</code>
+to <code>basicjspws-demo.war</code> and put it in the <code>TOMCAT_HOME/webapps</code> directory. 
+<p>
+To integrate your page in the framework, try adding a link to your page in <code>index.jsp</code>
+and update <code>mypage.jsp</code> to show something interesting.
+If you let <code>mypage.jsp</code> use a session (<code>&lt;%@ page session="true" %&gt;</code>), 
+consider using <code>ContollerUtil.getSession</code> in the controller
+so that statistics are updated and sessions per host will show on the Statistics page.
+</p>
+
+<h4>Rationale for "/pages/"</h4>
+There are two reasons for using the "/pages/" pre-fix:
+<br> - Maintainability: new pages can be added without changing <code>web.xml</code>. The <code>web.xml</code>
+is configured to use <code>AppFilter</code> and <code>AppServlet</code> for anything starting with "/pages/".
+<br> - Efficiency: resources like images and css-files should be served directly by Tomcat without
+involving any kind of filters or servlets (i.e. additional processing). Using a sub-directory (like "pages") 
+is the simplest way to accomplish this.
+
+<h3>Sessions and machine requests</h3>
+
+None of the included jsp-pages uses a session (this is set in the jsp-pages 
+in the line <code>&lt;%@ page session="false" %&gt;</code>).
+This is because the included pages do not need a session.
+If you are developing a web service that interacts with humans mostly,
+you will need a session to keep track of who is doing what.
+If you are developing a web service for question/answer type of request with other machines,
+you should not use sessions (and log warnings when sessions are created) 
+since maintaining sessions takes quite some effort.
+<p>
+When developing a web service for question/answer type of request with other machines,
+it helps if there is a page with a form where you can fill in some values
+and use those values to perform some kind of query and get an answer. 
+In ths case, let the jsp-page activate a session (so that values can be remembered
+and you do not need to put the same values in each time), 
+but create another controller at another URL that performs the business logic
+and does not create a session.
+<br>When a "submit" is done on the page, the page-controller can redirect to the controller
+at the other URL with the values from the form on the jsp-page. 
+In this manner the page-controller can mimic a request from another machine.
+</p>
+<p>
+It is not easy to create a jsp-page with a form and redirect (or post) submit-values to another URL.
+But the techniques can be found on the internet and once you have learned this trick,
+you can use it to efficiently test the controllers that talk to other machines.
+Also, these pages can come in handy as a shotcut for getting particular information.
+Last but not least, controllers that talk to other machines (e.g. in goes one parameter,
+out goes a XML-formatted answer) and do not use a session are very efficient:
+they can serve millions of requests without giving Tomcat any kind of stress. 
+</p> 
+
+<h3>Logging</h3>
+
+Logging is only important when debugging and when you are in trouble,
+which is why it needs to be done properly from the start. 
+<code>LogbackUtil</code> shows what is needed to get it done properly.
+Note for example that you cannot rely on default log-configuration files (e.g. <code>logback.xml</code>)
+because that could mean that all web-services running on Tomcat write to the same log-file
+(which makes examining the log for one particular problem nearly impossible).
+It is possible to make one log-configuration file for all web-services running on a Tomcat instance
+(simply use different appenders for different classes), but that must be a conscious decision
+to create and maintain such a log-configuration file for all web-services.
+<br>The log-configuration file provided with the demo project (<code>basicjspws-demo-logback.xml</code>)
+shows which log-options and associated features you need to do any proper logging.
+Note for example the reload&amp;reconfigure option (<code>scanPeriod</code>): essential when you need 
+debug-log statements without making the web-sevice unavailable. 
+<br>One thing missing from this demo-project is the use of MDC during logging.
+The use of MDC makes it easy to relate log-statements to one particular http-request
+without the need to modify your code for log-statements. See for more information
+<a href="http://logback.qos.ch/manual/mdc.html">Logback MDC</a>.
+<br>Another logging technique is to cache all debug log-statements for a http-request and
+only write these debug log-statements to file when an error occurs. 
+Logback provides sufficient support for this use-case 
+(see also <a href="http://logback.qos.ch/manual/appenders.html#SiftingAppender">Logback SiftingAppender</a>).
+
+<h3>Usefulness of the Basic JSP framework</h3>
+
+The Basic JSP project was developed after creating three web-services which mostly serve
+machine requests. The framework, in particular the use of the Controller concept,
+has proven to be efficient and stable (over 10 million requests served without issues).
+For internal "tools" projects, jsp-pages can be used to 
+efficiently develop web-pages that come in very handy at times
+(especially when working with legacy systems that require the controller to
+perform tasks in a "almost but not quite standard manner").
+The framework has not been used (and should not be used) to
+guide human interaction through various complex web-pages.
+Other tools and frameworks have been developed for this use-case.
+With those other frameworks you will rarely need to work on a low http-communication level, 
+but understanding the building bricks of low-level http-communicationd does provide insight
+in how these frameworks function and where to look in case of trouble.
+The Controller idea included in the Basic JSP Demo project allows you to
+experiment freely with low-level http-communication.
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+html, body {
+	font-size: 0.90em;
+}
+
+body {
+	max-width: 80em;
+	margin: 0 auto;
+	padding: 0;
+	font-family: Verdana, sans-serif;
+}
+
+/* Use cellspacing="0" in table-tag to remove all extra space 
+used by a table, the settings below do not remove cellspacing. */ 
+table, th, td {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	/* Makes round corners for latest CSS3-compatible browsers */
+	border-radius: 4px;
+	/* Makes round corners for FireFox */
+	-moz-border-radius: 4px;
+	/* Makes round corners for Safari and Chrome */
+	-webkit-border-radius: 4px;
+	/* Makes round corners for Linux browsers */
+	-khtml-border-radius: 4px;
+	/* Makes round corners for Internet Explorer. 
+	Unfortunately, makes background wrong color (black) for tables.
+	And also mis-places the bottom-bar on the sponsor-page.
+	*/
+	/* behavior:url(/border-radius.htc); */
+}
+
+pre, code {
+	font-size: 1.2em;
+}
+
+.main {
+	margin-left: 1%;
+	margin-right: 1%;
+	padding: 10px;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	-khtml-border-radius: 6px;
+}
+
+/* Shows a table with a grid */
+table.gridtable {
+	border: 1px outset;
+	margin: 3px 2px;
+}
+table.gridtable th{
+	border: 1px outset;
+	padding: 2px;
+}
+table.gridtable tr:hover {
+	background: LightGray;
+}
+table.gridtable td {
+	border: 1px outset;
+	padding: 2px 3px;
+}

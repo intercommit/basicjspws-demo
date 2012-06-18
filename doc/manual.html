@@ -9,7 +9,7 @@ code {font-size: 1.1em}
 
 <h2>Basic JSP WS</h2>
 
-<div style="font-size:0.8em; float:right">14/6/2012</div>
+<div style="font-size:0.8em; float:right">18/6/2012</div>
 
 The goal of this Basic JSP project is to provide a minimal learning setup 
 to get started on building a web-service that performs a small set of business logic
@@ -47,15 +47,18 @@ Stuff starts at <code>/WebContent/WEB-INF/web.xml</code> in the demo-project.
 In here there is a <code>listener-class</code> set that Tomcat will run (set to <code>InitDemo</code>).
 In the demo-project <code>InitDemo</code> extends <code>AppInit</code>.
 Via <code>InitDemo</code> Tomcat will call <code>AppInit.contextInitialized</code>.
-This is where the demo app is setup. Among other things (details later), <code>AppInit</code> will
-register a <code>UrlController</code> that links requests from <code>/basicjspws-demo/pages/index</code>
-to the <code>IndexController</code> class.
-In other words, if Tomcat receives a http-request to <code>/basicjspws-demo/pages/index</code>
-the <code>IndexController</code> is called to handle that request.
-The <code>IndexController</code> simply returns the jsp-page that needs to be shown (<code>/WEB-INF/pages/index.jsp</code>).
+This is where the demo app is initialized. 
+<br>Next, Tomcat will call the MainFilter and MainServlet classes that are registered in <code>/WebContent/WEB-INF/web.xml</code>.
+The MainServlet class (<code>nl.intercommit.basicjspws.AppServlet</code>) sets the controllers 
+that will handle the requests for a specific URL (<code>AppServlet.registerRequestControllers</code>).
+Among other controllers, the <code>Index</code> controller is related to the URL
+<code>/basicjspws-demo/</code> and <code>/basicjspws-demo/pages/index</code>.
+<br>In other words, if Tomcat receives a http-request to <code>/basicjspws-demo/pages/index</code>
+the <code>Index</code> controller is called to handle that request.
+The <code>Index</code> controller simply returns the jsp-page that needs to be shown (<code>/WEB-INF/pages/index.jsp</code>).
 <p>
 Between Tomcat receiving a http-request to <code>/basicjspws-demo/pages/index</code>
-and calling the <code>IndexController</code> class, two other classes are involved: <code>AppFilter</code> and <code>AppServlet</code>.
+and calling the <code>Index</code> controller class, two other classes are involved: <code>AppFilter</code> and <code>AppServlet</code>.
 Both are registered in <code>/WebContent/WEB-INF/web.xml</code> also (which is why Tomcat involves these classes).
 <code>AppFilter</code> does a little pre-processing of the http-request 
 so that the requested URL is set to <code>/basicjspws-demo/pages/index</code>.
@@ -69,23 +72,15 @@ displaying of the jsp-page (via <code>RequestDispatcher</code>).
 
 <h3>Serve my jsp-page</h3>
 
-Open <code>InitDemo</code>, override the method <code>setUrlControllers</code> from <code>AppInit</code>.
-In the new method, call <code>super.setUrlControllers</code> and add the following line:
-<br><code>urlControllers.add(new UrlController("myPageUrl", baseUrl + "pages/mine", null, "/WEB-INF/pages/mypage.jsp"));</code>
-<br>In <code>/WebContent/WEB-INF/pages</code> copy <code>index.jsp</code> to <code>mypage.jsp</code>.
-<br>Create a class <code>MyPageController</code>, copy the contents from <code>IndexController</code>
-but modify the return-statement to <code>getAppPage("myPageUrl")</code>.
+In <code>/WebContent/WEB-INF/pages</code> copy <code>index.jsp</code> to <code>mypage.jsp</code>.
+<br>Create a class <code>MyPage</code>, copy the contents from <code>Index</code> controller
+but modify the return-statement to <code>return "/WEB-INF/pages/mypage.jsp"</code>.
 <br>Create a class <code>DemoServlet</code> which extends <code>AppServlet</code>.
-<br>Override the method <code>init</code>. In the new method call <code>super.init</code> and add the following lines:
+<br>Override the method <code>registerRequestControllers</code>. In the new method add the following lines:
 <pre>
-	UrlControllers ucs = AppInit.appInstance.urlControllers;
-   	MyPageController mp = new MyPageController();
-	ucs.get("myPageUrl").controller = mp;
+	super.registerRequestControllers(baseUrl);
+	requestControllers.put(baseUrl + "pages/mine", new MyPageController());
 </pre>
-The reason for registering the controller in <code>AppServlet</code> and not in <code>AppInit</code> is that
-<code>AppServlet</code> is only initialized when <code>AppInit</code> is done (i.e. your application has started OK).
-If your controller needs data from the application startup, it is guaranteed to be available
-when <code>AppServlet</code> is initialized.
 <br>Register the new <code>DemoServlet</code> in <code>/WebContent/WEB-INF/web.xml</code>
 (replace <code>nl.intercommit.basicjspws.AppServlet</code>).
 If you have Tomcat running in Eclipse, changes should be applied immediatly.

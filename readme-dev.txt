@@ -52,7 +52,7 @@ Press F5 (refresh) in Eclipse for this project.
 Note: removed dependencies might still show up in Eclipse under "Referenced Libraries".
 If so, remove them by hand (Properties> Java Build Path, tab Libraries).
 
-To update the Tomcat server*, right-click the server and select "Clean".
+To update the Tomcat server*, right-click the server and select "Clean Tomcat Working directory" and "Clean".
 * To show the server, select Window> Show View> Other, Server> Servers. 
 A "Servers" window should appear with Tomcat in it.
 

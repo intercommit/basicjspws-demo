@@ -11,7 +11,7 @@ The ideas and usage of Basic JSP WS are discussed in doc/manual.html
 
 ### Compiling
 
-This project depends on the Basic JSP Webservice (com.descartes:basicjspws) project which delivers a jar-file 
+This project depends on the Basic JSP Webservice (nl.intercommit:basicjspws) project which delivers a jar-file 
 that should be available in your Maven repository.
 See the readme-dev.txt of that project about how to make this required jar-file available on your system.
 

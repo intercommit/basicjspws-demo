@@ -6,7 +6,7 @@
 ${logTextInfo}
 </p>
 <pre>
-${logText}
+<c:out value="${logText}"/>
 </pre>
 </body>
 </html>

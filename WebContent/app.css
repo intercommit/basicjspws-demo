@@ -25,13 +25,20 @@ table, th, td {
 	-khtml-border-radius: 4px;
 	/* Makes round corners for Internet Explorer. 
 	Unfortunately, makes background wrong color (black) for tables.
-	And also mis-places the bottom-bar on the sponsor-page.
 	*/
 	/* behavior:url(/border-radius.htc); */
 }
 
-pre, code {
+code {
 	font-size: 1.2em;
+}
+
+pre {
+	font-size: 1.2em;
+	white-space: pre-wrap; /* css-3 */
+	white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 .main {

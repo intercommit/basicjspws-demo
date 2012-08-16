@@ -4,11 +4,11 @@
 <p style="float:right">Back to <a href="${indexPageUrl}">index</a> page.</p>
 Operating system settings
 <pre>
-${systemEnv}
+<c:out value="${systemEnv}"/>
 </pre>
 Java system properties
 <pre>
-${systemProps}
+<c:out value="${systemProps}"/>
 </pre>
 <p>
 Back to <a href="${indexPageUrl}">index</a> page.
